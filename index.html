@@ -125,7 +125,7 @@
 
     .sec-hdr {
       display: flex; align-items: center; gap: 12px;
-      padding: 22px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 2px;
+      padding: 22px 0 10pt; border-bottom: 1px solid var(--border); margin-bottom: 2px;
     }
     .sec-emoji { font-size: 22px; }
     .sec-title { font-size: 21px; font-weight: 900; letter-spacing: 2px; color: var(--yellow); text-transform: uppercase; }
@@ -337,13 +337,13 @@
 </div>
 
 <script>
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  CONFIG
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 const DB  = 'https://quioscodemarcos-default-rtdb.firebaseio.com';
 const PWD = 'QM2026'; // Cambiar aquí si se quiere otra contraseña
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  MENÚ POR DEFECTO
 // ═══════════════════════════════════════════════
 const DEFAULT_MENU = [
@@ -388,7 +388,7 @@ const DEFAULT_MENU = [
         {name:'Capuchino',       price:3300, top:true,  desc:''},
         {name:'Té',              price:2500, top:false, desc:''},
       ]},
-      { name:'FRÍOS', items:[
+      { name:'FIÍOS', items:[
         {name:'Café Frío', price:3000, top:false, desc:''},
         {name:'Cortado',   price:3300, top:false, desc:''},
       ]},
@@ -467,8 +467,8 @@ const DEFAULT_MENU = [
 
 // ═══════════════════════════════════════════════
 //  STATE
-// ═══════════════════════════════════════════════
-let menu    = JSON.parse(JSON.stringify(DEFAULT_MENU));
+-// ═══════════════════════════════════════════════
+llet menu    = JSON.parse(JSON.stringify(DEFAULT_MENU));
 let isAdmin = false;
 let tapCount = 0, tapTimer = null;
 let editTarget = null; // {ci, si, ii}
@@ -483,7 +483,7 @@ async function loadFirebase() {
     const d = await r.json();
     if (d && Array.isArray(d)) { menu = d; setStatus(true, 'En línea · Menú actualizado'); }
     else setStatus(true, 'En línea · Sin datos remotos aún');
-  } catch { setStatus(false, 'Sin conexión · Usando menúlocal'); }
+  } catch { setStatus(false, 'Sin conexión · Usando menú local'); }
   renderAll(); hideLoading();
 }
 
@@ -598,7 +598,7 @@ function adminTap() {
     openModal('mPwd');
     setTimeout(()=>{ document.getElementById('pwdIn').focus(); },150);
   } else {
-    tapTimer=setTimeout(()=>{ tapCount=0; },700);
+    tapTimer=setTimeout(()=>{ tapCount=0; },1500);
   }
 }
 
