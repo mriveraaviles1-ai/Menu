@@ -1,426 +1,714 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiosco de Marcos — Menú</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --negro: #0a0a0a; --negro2: #111111; --negro3: #1a1a1a;
-    --amarillo: #FFE500; --blanco: #f5f5f5;
-    --gris: #888; --gris2: #444; --rojo: #ff4444; --verde: #44cc88;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--negro); color:var(--blanco); font-family:'Barlow',sans-serif; min-height:100vh; overflow-x:hidden; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Quiosco de Marcos — Menú</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  header { background:var(--negro); border-bottom:2px solid var(--amarillo); padding:20px 20px 14px; text-align:center; position:sticky; top:0; z-index:100; box-shadow:0 4px 30px rgba(255,229,0,0.12); }
-  .header-top { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:4px; }
-  .logo-circle { width:48px; height:48px; border-radius:50%; background:var(--amarillo); display:flex; align-items:center; justify-content:center; font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--negro); flex-shrink:0; }
-  .header-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(28px,7vw,48px); letter-spacing:3px; color:var(--amarillo); text-shadow:0 0 30px rgba(255,229,0,0.35); }
-  .header-sub { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:5px; color:var(--gris); text-transform:uppercase; margin-bottom:12px; }
-  .horarios { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
-  .horario-pill { background:var(--negro3); border:1px solid var(--gris2); border-radius:20px; padding:3px 12px; font-size:11px; font-family:'Barlow Condensed',sans-serif; letter-spacing:1px; color:var(--gris); }
-  .horario-pill span { color:var(--amarillo); font-weight:700; }
+    :root {
+      --black:  #0a0a0a;
+      --dark:   #111111;
+      --card:   #161616;
+      --yellow: #FFD600;
+      --gold:   #E8B800;
+      --white:  #F5F5F5;
+      --gray:   #777777;
+      --border: rgba(255,214,0,0.12);
+    }
 
-  .admin-toggle { position:fixed; bottom:20px; left:20px; z-index:300; background:var(--negro3); border:1px solid var(--gris2); color:var(--gris); width:42px; height:42px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
-  .admin-toggle:hover { border-color:var(--amarillo); color:var(--amarillo); }
+    html { scroll-behavior: smooth; }
 
-  .cat-nav { display:flex; gap:8px; padding:12px 14px; overflow-x:auto; background:var(--negro2); border-bottom:1px solid var(--negro3); scrollbar-width:none; }
-  .cat-nav::-webkit-scrollbar { display:none; }
-  .cat-btn { flex-shrink:0; background:var(--negro3); border:1px solid var(--gris2); color:var(--gris); padding:6px 14px; border-radius:20px; font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:1px; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
-  .cat-btn:hover, .cat-btn.active { background:var(--amarillo); border-color:var(--amarillo); color:var(--negro); font-weight:700; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior-y: contain;
+    }
 
-  main { padding:20px 16px 100px; max-width:640px; margin:0 auto; }
-  .categoria { margin-bottom:36px; display:none; }
-  .categoria.visible { display:block; animation:fadeUp 0.3s ease; }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    /* ── LOADING ── */
+    #loading {
+      position: fixed; inset: 0; background: var(--black);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 1000; transition: opacity .4s;
+    }
+    #loading.gone { opacity: 0; pointer-events: none; }
+    .load-logo {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--yellow); color: var(--black);
+      font-size: 22px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      animation: breathe 1.6s ease-in-out infinite;
+    }
+    .load-text { color: var(--gray); font-size: 11px; letter-spacing: 3px; margin-top: 16px; }
+    @keyframes breathe { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.08);opacity:.7} }
 
-  .cat-title { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:3px; color:var(--amarillo); border-bottom:1px solid var(--gris2); padding-bottom:8px; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-  .subcat-label { font-family:'Barlow Condensed',sans-serif; font-size:10px; letter-spacing:3px; color:var(--gris2); text-transform:uppercase; margin:16px 0 4px; }
+    /* ── ADMIN BAR ── */
+    #adminBar {
+      display: none; position: fixed; top: 0; left: 0; right: 0; height: 44px;
+      background: var(--yellow); color: var(--black);
+      padding: 0 16px; align-items: center; justify-content: space-between;
+      z-index: 600; font-size: 13px; font-weight: 700;
+    }
+    body.admin #adminBar { display: flex; }
+    body.admin header { padding-top: 60px; }
+    .ab-btns { display: flex; gap: 8px; }
+    .ab-save {
+      background: var(--black); color: var(--yellow);
+      border: none; border-radius: 6px; padding: 6px 14px;
+      font-size: 12px; font-weight: 800; cursor: pointer;
+    }
+    .ab-exit {
+      background: transparent; border: none; font-size: 12px;
+      color: rgba(0,0,0,.55); cursor: pointer; font-weight: 600;
+    }
 
-  .item { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid #1e1e1e; gap:10px; }
-  .item:last-of-type { border-bottom:none; }
-  .item-info { flex:1; }
-  .item-name { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:600; color:var(--blanco); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
-  .badge-top { background:var(--amarillo); color:var(--negro); font-size:9px; font-weight:700; letter-spacing:1px; padding:2px 6px; border-radius:4px; font-family:'Barlow Condensed',sans-serif; }
-  .item-desc { font-size:12px; color:var(--gris); margin-top:2px; font-style:italic; }
-  .item-price { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--amarillo); letter-spacing:1px; white-space:nowrap; }
+    /* ── HEADER ── */
+    header {
+      background: var(--black); padding: 28px 20px 18px;
+      text-align: center; border-bottom: 2px solid var(--yellow);
+    }
+    .logo-row { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 6px; }
+    .logo-circle {
+      width: 54px; height: 54px; border-radius: 50%;
+      background: var(--yellow); color: var(--black);
+      font-size: 18px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .brand { font-size: 24px; font-weight: 900; letter-spacing: 3px; color: var(--yellow); text-transform: uppercase; }
+    .sub { font-size: 10px; letter-spacing: 4px; color: var(--gray); text-transform: uppercase; margin-bottom: 14px; }
+    .hours { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .hbadge {
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px; padding: 5px 14px; font-size: 12px; color: var(--gray);
+    }
+    .hbadge strong { color: var(--yellow); }
 
-  /* ADMIN MODE */
-  .admin-mode .item { background:rgba(255,229,0,0.02); border-radius:8px; padding:10px 8px; margin-bottom:4px; border:1px solid #222 !important; }
-  .admin-mode .item:hover { border-color:var(--gris2) !important; }
-  [contenteditable="true"] { cursor:text; }
-  [contenteditable="true"]:focus { background:rgba(255,229,0,0.08); border-radius:4px; outline:2px solid var(--amarillo); padding:2px 6px; }
-  .editable { background:transparent; border:none; color:inherit; font-family:inherit; font-size:inherit; font-weight:inherit; letter-spacing:inherit; display:inline; min-width:20px; }
-  .editable-price { background:transparent; border:none; font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--amarillo); letter-spacing:1px; min-width:60px; text-align:right; }
+    /* ── STATUS BAR ── */
+    #statusBar {
+      background: var(--dark); padding: 6px 16px;
+      font-size: 11px; color: var(--gray); text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .sdot {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: #888; vertical-align: middle; margin-right: 5px;
+      transition: background .4s;
+    }
+    .sdot.live { background: #4caf50; }
 
-  .item-actions { display:none; gap:6px; margin-left:6px; flex-shrink:0; }
-  .admin-mode .item-actions { display:flex; }
-  .btn-icon { background:none; border:1px solid #333; color:var(--gris2); width:30px; height:30px; border-radius:6px; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; transition:all 0.2s; flex-shrink:0; }
-  .btn-icon.del:hover { border-color:var(--rojo); color:var(--rojo); }
-  .btn-icon.top.on, .btn-icon.top:hover { border-color:var(--amarillo); color:var(--amarillo); }
+    /* ── NAV ── */
+    .nav-wrap {
+      position: sticky; top: 0; z-index: 500;
+      background: var(--dark); border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    }
+    .nav-wrap::-webkit-scrollbar { display: none; }
+    body.admin .nav-wrap { top: 44px; }
+    nav { display: flex; padding: 0 6px; white-space: nowrap; }
+    .nbtn {
+      background: none; border: none; color: var(--gray);
+      padding: 13px 15px; font-size: 12px; font-weight: 600; letter-spacing: .3px;
+      cursor: pointer; border-bottom: 2.5px solid transparent; transition: all .2s;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .nbtn.on { color: var(--yellow); border-bottom-color: var(--yellow); }
+    .nbtn .ni { margin-right: 4px; }
 
-  .btn-add-item { display:none; width:100%; margin-top:10px; background:rgba(255,229,0,0.04); border:1px dashed var(--gris2); color:var(--gris); padding:10px; border-radius:8px; font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:1px; cursor:pointer; transition:all 0.2s; }
-  .admin-mode .btn-add-item { display:block; }
-  .btn-add-item:hover { border-color:var(--amarillo); color:var(--amarillo); }
+    /* ── MAIN ── */
+    main { padding-bottom: 90px; }
 
-  /* ADMIN BAR */
-  .admin-bar { display:none; position:fixed; top:0; left:0; right:0; z-index:500; background:#0f0f0f; border-bottom:2px solid var(--amarillo); padding:8px 16px; align-items:center; gap:10px; }
-  .admin-bar.on { display:flex; }
-  .admin-bar-title { font-family:'Bebas Neue',sans-serif; font-size:17px; color:var(--amarillo); letter-spacing:2px; flex:1; }
-  .btn-guardar { background:var(--amarillo); color:var(--negro); border:none; padding:7px 20px; border-radius:20px; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; letter-spacing:1px; cursor:pointer; }
-  .btn-guardar:hover { background:#fff; }
-  .btn-salir { background:none; border:1px solid var(--gris2); color:var(--gris); padding:7px 14px; border-radius:20px; font-family:'Barlow Condensed',sans-serif; font-size:13px; cursor:pointer; }
-  .btn-salir:hover { border-color:var(--rojo); color:var(--rojo); }
-  .save-ok { font-family:'Barlow Condensed',sans-serif; font-size:12px; color:var(--verde); letter-spacing:1px; opacity:0; transition:opacity 0.3s; }
-  .save-ok.on { opacity:1; }
+    .section { padding: 0 18px 4px; }
 
-  /* MODAL */
-  .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:600; align-items:center; justify-content:center; }
-  .modal-bg.on { display:flex; }
-  .modal { background:var(--negro2); border:1px solid var(--gris2); border-radius:16px; padding:32px 28px; width:90%; max-width:320px; text-align:center; }
-  .modal h2 { font-family:'Bebas Neue',sans-serif; font-size:26px; color:var(--amarillo); letter-spacing:3px; margin-bottom:6px; }
-  .modal p { font-size:13px; color:var(--gris); margin-bottom:20px; }
-  .modal input[type=password] { width:100%; background:var(--negro3); border:1px solid var(--gris2); color:var(--blanco); padding:12px 16px; border-radius:10px; font-family:'Barlow',sans-serif; font-size:15px; outline:none; margin-bottom:10px; }
-  .modal input[type=password]:focus { border-color:var(--amarillo); }
-  .btn-login { width:100%; background:var(--amarillo); color:var(--negro); border:none; padding:12px; border-radius:10px; font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; cursor:pointer; }
-  .btn-login:hover { background:#fff; }
-  .modal-err { color:var(--rojo); font-size:12px; margin-top:6px; min-height:16px; }
-  .btn-cancelar { background:none; border:none; color:var(--gris); font-size:12px; cursor:pointer; margin-top:10px; font-family:'Barlow',sans-serif; text-decoration:underline; display:block; margin-inline:auto; }
+    .sec-hdr {
+      display: flex; align-items: center; gap: 12px;
+      padding: 22px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 2px;
+    }
+    .sec-emoji { font-size: 22px; }
+    .sec-title { font-size: 21px; font-weight: 900; letter-spacing: 2px; color: var(--yellow); text-transform: uppercase; }
 
-  footer { text-align:center; padding:20px; font-size:11px; color:var(--gris2); font-family:'Barlow Condensed',sans-serif; letter-spacing:2px; border-top:1px solid #1a1a1a; }
-  footer strong { color:var(--amarillo); }
+    .sublabel {
+      font-size: 10px; font-weight: 700; letter-spacing: 3px;
+      color: var(--gray); text-transform: uppercase; padding: 14px 0 6px;
+    }
 
-  .back-top { position:fixed; bottom:20px; right:20px; background:var(--amarillo); color:var(--negro); border:none; width:42px; height:42px; border-radius:50%; font-size:20px; cursor:pointer; display:none; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(255,229,0,0.35); z-index:200; }
-  .back-top.on { display:flex; }
-  body.admin-on { padding-top:48px; }
-</style>
+    /* ── ITEM ── */
+    .item {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 13px 0; border-bottom: 1px solid var(--border); gap: 10px;
+    }
+    .item:last-child { border-bottom: none; }
+    .iL { flex: 1; min-width: 0; }
+    .inr { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .iname {
+      font-size: 15px; font-weight: 700; color: var(--white); line-height: 1.35;
+      transition: color .15s;
+    }
+    .idesc { font-size: 12px; color: var(--gray); font-style: italic; margin-top: 2px; }
+    .tbadge {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: var(--yellow); color: var(--black);
+      font-size: 9px; font-weight: 800; padding: 2px 7px;
+      border-radius: 4px; letter-spacing: .5px; flex-shrink: 0; cursor: default;
+    }
+    .iprice {
+      font-size: 17px; font-weight: 800; color: var(--yellow);
+      white-space: nowrap; flex-shrink: 0; align-self: center;
+      transition: color .15s;
+    }
+
+    /* Admin edit hints */
+    body.admin .iname  { border-bottom: 1.5px dashed rgba(255,214,0,.35); cursor: pointer; }
+    body.admin .iprice { border-bottom: 1.5px dashed var(--yellow); cursor: pointer; }
+    body.admin .tbadge { cursor: pointer; }
+    body.admin .iname:active,
+    body.admin .iprice:active { color: var(--yellow); }
+
+    /* ── FABs ── */
+    .fab {
+      position: fixed; bottom: 24px; width: 48px; height: 48px;
+      border-radius: 50%; border: none; display: flex; align-items: center;
+      justify-content: center; font-size: 20px; cursor: pointer; z-index: 400;
+      transition: transform .15s;
+    }
+    .fab:active { transform: scale(.88); }
+    #fabAdmin {
+      left: 20px; background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12); color: var(--gray);
+    }
+    #fabTop { right: 20px; background: var(--yellow); color: var(--black); }
+
+    /* ── MODALS ── */
+    .mbd {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.82); z-index: 700; align-items: flex-end;
+    }
+    .mbd.open { display: flex; }
+    .mbox {
+      background: #1c1c1c; border-radius: 22px 22px 0 0;
+      padding: 26px 20px 44px; width: 100%; max-height: 85vh; overflow-y: auto;
+    }
+    .mbox h2 { font-size: 17px; font-weight: 800; color: var(--yellow); margin-bottom: 18px; }
+    .mbox input[type=text],
+    .mbox input[type=password],
+    .mbox input[type=number] {
+      width: 100%; background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.14); border-radius: 12px;
+      padding: 14px 16px; font-size: 16px; color: var(--white);
+      margin-bottom: 12px; outline: none; -webkit-appearance: none;
+    }
+    .mbox input:focus { border-color: var(--yellow); }
+    .btn-y {
+      width: 100%; background: var(--yellow); color: var(--black);
+      border: none; border-radius: 12px; padding: 15px;
+      font-size: 16px; font-weight: 800; cursor: pointer; margin-bottom: 8px;
+    }
+    .btn-c {
+      width: 100%; background: transparent; color: var(--gray);
+      border: 1px solid rgba(255,255,255,.1); border-radius: 12px;
+      padding: 15px; font-size: 15px; cursor: pointer;
+    }
+    .err-msg { color: #ff6b6b; font-size: 13px; text-align: center; margin-bottom: 10px; display: none; }
+
+    /* Toggle TOP row in edit modal */
+    .top-toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0 18px; font-size: 14px; color: var(--gray);
+    }
+    .switch { position: relative; width: 44px; height: 26px; display: inline-block; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; inset: 0; background: #333; border-radius: 26px; cursor: pointer; transition: .3s;
+    }
+    .slider:before {
+      content: ''; position: absolute; width: 20px; height: 20px;
+      left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: .3s;
+    }
+    input:checked + .slider { background: var(--yellow); }
+    input:checked + .slider:before { transform: translateX(18px); }
+
+    /* Delete item button */
+    .btn-del {
+      width: 100%; background: transparent; color: #ff4444;
+      border: 1px solid rgba(255,68,68,.3); border-radius: 12px;
+      padding: 13px; font-size: 14px; cursor: pointer; margin-top: 6px;
+    }
+
+    /* Add item button */
+    .add-item-btn {
+      display: none; width: 100%; background: transparent;
+      border: 1px dashed rgba(255,214,0,.3); border-radius: 10px;
+      padding: 12px; color: rgba(255,214,0,.6); font-size: 13px;
+      font-weight: 600; cursor: pointer; margin-top: 10px; text-align: center;
+    }
+    body.admin .add-item-btn { display: block; }
+    .add-item-btn:active { border-color: var(--yellow); color: var(--yellow); }
+  </style>
 </head>
 <body>
 
-<!-- BARRA ADMIN -->
-<div class="admin-bar" id="adminBar">
-  <div class="admin-bar-title">⚙ MODO EDICIÓN</div>
-  <span class="save-ok" id="saveOk">✓ Guardado</span>
-  <button class="btn-guardar" onclick="guardar()">Guardar</button>
-  <button class="btn-salir" onclick="salirAdmin()">Salir</button>
+<!-- LOADING -->
+<div id="loading">
+  <div class="load-logo">QM</div>
+  <div class="load-text">CARGANDO MENÚ...</div>
 </div>
 
-<!-- MODAL LOGIN -->
-<div class="modal-bg" id="modalBg">
-  <div class="modal">
-    <h2>Acceso Admin</h2>
-    <p>Ingresa la clave para editar el menú</p>
-    <input type="password" id="pwInput" placeholder="Clave" onkeydown="if(event.key==='Enter')login()">
-    <button class="btn-login" onclick="login()">Entrar</button>
-    <div class="modal-err" id="modalErr"></div>
-    <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+<!-- ADMIN BAR -->
+<div id="adminBar">
+  <span>✏️ Modo Edición Activo</span>
+  <div class="ab-btns">
+    <button class="ab-save" id="abSave" onclick="saveToFirebase()">💾 Guardar</button>
+    <button class="ab-exit" onclick="exitAdmin()">Salir</button>
   </div>
 </div>
 
+<!-- HEADER -->
 <header>
-  <div class="header-top">
+  <div class="logo-row">
     <div class="logo-circle">QM</div>
-    <div><div class="header-title">Quiosco de Marcos</div></div>
+    <div class="brand">Quiosco de Marcos</div>
   </div>
-  <div class="header-sub">Synchronicity · Gym &amp; Wellness</div>
-  <div class="horarios">
-    <div class="horario-pill">Lun–Vie <span>7:00–19:00</span></div>
-    <div class="horario-pill">Sábado <span>9:00–14:00</span></div>
-    <div class="horario-pill">Domingo <span>Cerrado</span></div>
+  <div class="sub">Synchronicity · Gym &amp; Wellness</div>
+  <div class="hours">
+    <span class="hbadge">Lun–Vie <strong>7:00–19:00</strong></span>
+    <span class="hbadge">Sábado <strong>9:00–14:00</strong></span>
+    <span class="hbadge">Domingo <strong>Cerrado</strong></span>
   </div>
 </header>
 
-<nav class="cat-nav">
-  <button class="cat-btn active" onclick="filtrar('todo',this)">Todo</button>
-  <button class="cat-btn" onclick="filtrar('cafeteria',this)">☕ Cafetería</button>
-  <button class="cat-btn" onclick="filtrar('batidos',this)">🥤 Batidos</button>
-  <button class="cat-btn" onclick="filtrar('bebidas',this)">💧 Bebidas</button>
-  <button class="cat-btn" onclick="filtrar('snacks',this)">🍫 Snacks</button>
-  <button class="cat-btn" onclick="filtrar('proteinas',this)">💪 Proteínas</button>
-  <button class="cat-btn" onclick="filtrar('platos',this)">🍽️ Platos Preparados</button>
-</nav>
+<!-- STATUS -->
+<div id="statusBar"><span class="sdot" id="sdot"></span><span id="statusTxt">Conectando...</span></div>
 
-<main id="menuMain">
+<!-- NAV -->
+<div class="nav-wrap"><nav id="nav"></nav></div>
 
-  <section class="categoria visible" data-cat="cafeteria" id="sec-cafeteria">
-    <div class="cat-title"><span>☕</span> Cafetería</div>
-    <div class="subcat-label">Calientes</div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Café Americano</span> <span class="badge-top">★ TOP</span></div></div>
-      <div class="item-price"><span class="editable-price">$1.500</span></div>
-      <div class="item-actions"><button class="btn-icon top on" onclick="toggleTop(this)" title="TOP">★</button><button class="btn-icon del" onclick="delItem(this)" title="Eliminar">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Espresso Simple</span></div></div>
-      <div class="item-price"><span class="editable-price">$1.500</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Espresso Doble</span></div></div>
-      <div class="item-price"><span class="editable-price">$3.300</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Latte</span> <span class="badge-top">★ TOP</span></div></div>
-      <div class="item-price"><span class="editable-price">$3.300</span></div>
-      <div class="item-actions"><button class="btn-icon top on" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Capuchino</span> <span class="badge-top">★ TOP</span></div></div>
-      <div class="item-price"><span class="editable-price">$3.300</span></div>
-      <div class="item-actions"><button class="btn-icon top on" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Té</span></div></div>
-      <div class="item-price"><span class="editable-price">$1.200</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="subcat-label">Fríos</div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Café Frío</span></div></div>
-      <div class="item-price"><span class="editable-price">$2.500</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <button class="btn-add-item" onclick="addItem('sec-cafeteria')">+ Agregar producto</button>
-  </section>
+<!-- MENU -->
+<main id="main"></main>
 
-  <section class="categoria visible" data-cat="batidos" id="sec-batidos">
-    <div class="cat-title"><span>🥤</span> Batidos</div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Batido de Proteína</span> <span class="badge-top">★ TOP</span></div><div class="item-desc">Varios sabores</div></div>
-      <div class="item-price"><span class="editable-price">$4.000</span></div>
-      <div class="item-actions"><button class="btn-icon top on" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Batido Natural</span></div><div class="item-desc">Frutas de temporada</div></div>
-      <div class="item-price"><span class="editable-price">$3.500</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Batido con Leche sin Lactosa</span></div></div>
-      <div class="item-price"><span class="editable-price">$4.500</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <button class="btn-add-item" onclick="addItem('sec-batidos')">+ Agregar producto</button>
-  </section>
+<!-- FABs -->
+<button class="fab" id="fabAdmin" onclick="adminTap()" title="Admin">⚙️</button>
+<button class="fab" id="fabTop" onclick="scrollTop()">↑</button>
 
-  <section class="categoria visible" data-cat="bebidas" id="sec-bebidas">
-    <div class="cat-title"><span>💧</span> Bebidas</div>
-    <div class="subcat-label">Agua</div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Agua 600 ml</span></div></div>
-      <div class="item-price"><span class="editable-price">$1.200</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Agua 1.6 lt</span></div></div>
-      <div class="item-price"><span class="editable-price">$2.500</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="subcat-label">Energéticas</div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Monster</span> <span class="badge-top">★ TOP</span></div></div>
-      <div class="item-price"><span class="editable-price">$2.500</span></div>
-      <div class="item-actions"><button class="btn-icon top on" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Red Bull</span></div></div>
-      <div class="item-price"><span class="editable-price">$2.200</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Ghost</span></div></div>
-      <div class="item-price"><span class="editable-price">$3.000</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="subcat-label">Jugos y Otros</div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Jugo Natural</span></div></div>
-      <div class="item-price"><span class="editable-price">$2.000</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Leche sin Lactosa</span></div></div>
-      <div class="item-price"><span class="editable-price">$1.000</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <button class="btn-add-item" onclick="addItem('sec-bebidas')">+ Agregar producto</button>
-  </section>
+<!-- PASSWORD MODAL -->
+<div class="mbd" id="mPwd">
+  <div class="mbox">
+    <h2>🔐 Acceso Administrador</h2>
+    <p class="err-msg" id="pwdErr">Contraseña incorrecta</p>
+    <input type="password" id="pwdIn" placeholder="Contraseña" onkeydown="if(event.key==='Enter')checkPwd()">
+    <button class="btn-y" onclick="checkPwd()">Entrar</button>
+    <button class="btn-c" onclick="closeModal('mPwd')">Cancelar</button>
+  </div>
+</div>
 
-  <section class="categoria visible" data-cat="snacks" id="sec-snacks">
-    <div class="cat-title"><span>🍫</span> Snacks</div>
-    <div class="subcat-label">Dulces</div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Alfajor Blanco</span> <span class="badge-top">★ TOP</span></div></div>
-      <div class="item-price"><span class="editable-price">$1.500</span></div>
-      <div class="item-actions"><button class="btn-icon top on" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
+<!-- EDIT ITEM MODAL -->
+<div class="mbd" id="mEdit">
+  <div class="mbox">
+    <h2 id="editTitle">Editar producto</h2>
+    <input type="text"   id="editName"  placeholder="Nombre">
+    <input type="number" id="editPrice" placeholder="Precio (ej: 3000)">
+    <input type="text"   id="editDesc"  placeholder="Descripción (opcional)">
+    <div class="top-toggle-row">
+      <span>⭐ Badge TOP</span>
+      <label class="switch"><input type="checkbox" id="editTop"><span class="slider"></span></label>
     </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Alfajor Negro</span></div></div>
-      <div class="item-price"><span class="editable-price">$1.500</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Twenty's</span></div></div>
-      <div class="item-price"><span class="editable-price">$3.000</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Bite Caramel White</span></div></div>
-      <div class="item-price"><span class="editable-price">$3.000</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="subcat-label">Salados / Fit</div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Charqui</span> <span class="badge-top">★ TOP</span></div><div class="item-desc">Carne seca, alto en proteína</div></div>
-      <div class="item-price"><span class="editable-price">$3.500</span></div>
-      <div class="item-actions"><button class="btn-icon top on" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Snack de Lentejas</span></div><div class="item-desc">Crocante y saludable</div></div>
-      <div class="item-price"><span class="editable-price">$3.500</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <button class="btn-add-item" onclick="addItem('sec-snacks')">+ Agregar producto</button>
-  </section>
+    <button class="btn-y" onclick="confirmEdit()">Guardar cambios</button>
+    <button class="btn-c" onclick="closeModal('mEdit')">Cancelar</button>
+    <button class="btn-del" id="delBtn" onclick="deleteItem()">🗑 Eliminar producto</button>
+  </div>
+</div>
 
-  <section class="categoria visible" data-cat="proteinas" id="sec-proteinas">
-    <div class="cat-title"><span>💪</span> Proteínas</div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Helado de Proteína</span> <span class="badge-top">★ TOP</span></div><div class="item-desc">Varios sabores</div></div>
-      <div class="item-price"><span class="editable-price">$6.000</span></div>
-      <div class="item-actions"><button class="btn-icon top on" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
+<!-- ADD ITEM MODAL -->
+<div class="mbd" id="mAdd">
+  <div class="mbox">
+    <h2 id="addTitle">➕ Agregar producto</h2>
+    <input type="text"   id="addName"  placeholder="Nombre del producto">
+    <input type="number" id="addPrice" placeholder="Precio (ej: 3000)">
+    <input type="text"   id="addDesc"  placeholder="Descripción (opcional)">
+    <div class="top-toggle-row">
+      <span>⭐ Badge TOP</span>
+      <label class="switch"><input type="checkbox" id="addTop"><span class="slider"></span></label>
     </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Barra Proteica</span></div></div>
-      <div class="item-price"><span class="editable-price">$2.500</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <button class="btn-add-item" onclick="addItem('sec-proteinas')">+ Agregar producto</button>
-  </section>
-
-  <section class="categoria visible" data-cat="platos" id="sec-platos">
-    <div class="cat-title"><span>🍽️</span> Platos Preparados</div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Tostada Palta + Pollo + Huevo</span> <span class="badge-top">★ TOP</span></div></div>
-      <div class="item-price"><span class="editable-price">$4.500</span></div>
-      <div class="item-actions"><button class="btn-icon top on" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Tostada Palta + Huevo</span></div></div>
-      <div class="item-price"><span class="editable-price">$3.500</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Tostada Simple</span></div></div>
-      <div class="item-price"><span class="editable-price">$2.000</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <div class="item">
-      <div class="item-info"><div class="item-name"><span class="editable">Sándwich del Día</span></div></div>
-      <div class="item-price"><span class="editable-price">$4.000</span></div>
-      <div class="item-actions"><button class="btn-icon top" onclick="toggleTop(this)">★</button><button class="btn-icon del" onclick="delItem(this)">✕</button></div>
-    </div>
-    <button class="btn-add-item" onclick="addItem('sec-platos')">+ Agregar producto</button>
-  </section>
-
-</main>
-
-<footer>
-  <strong>Quiosco de Marcos</strong> · Synchronicity<br>
-  Lun–Vie 7:00–19:00 &nbsp;|&nbsp; Sáb 9:00–14:00
-</footer>
-
-<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-<button class="admin-toggle" id="adminToggle" onclick="abrirModal()" title="Admin">⚙</button>
+    <button class="btn-y" onclick="confirmAdd()">Agregar</button>
+    <button class="btn-c" onclick="closeModal('mAdd')">Cancelar</button>
+  </div>
+</div>
 
 <script>
-const PW = 'Quioscodemarcos';
-let N = 100;
+// ═══════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════
+const DB  = 'https://quioscodemarcos-default-rtdb.firebaseio.com';
+const PWD = 'QM2026'; // Cambiar aquí si se quiere otra contraseña
 
-// Filtro categorías
-function filtrar(cat, btn) {
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.categoria').forEach(s => s.classList.toggle('visible', cat==='todo' || s.dataset.cat===cat));
-  window.scrollTo({top:0,behavior:'smooth'});
+// ═══════════════════════════════════════════════
+//  MENÚ POR DEFECTO
+// ═══════════════════════════════════════════════
+const DEFAULT_MENU = [
+  {
+    id:'bebidas', name:'Bebidas', emoji:'💧',
+    subcategories:[
+      { name:'AGUA', items:[
+        {name:'Agua 600 ml',              price:1500, top:false, desc:''},
+        {name:'Agua 1.6 lt',              price:2500, top:false, desc:''},
+        {name:'Agua 600 ml c/g',          price:1500, top:false, desc:''},
+        {name:'Agua 390 ml s/g',          price:2000, top:false, desc:''},
+        {name:'Agua 500 ml c/g S.Pellegrino', price:2500, top:false, desc:''},
+        {name:'Agua 500 ml s/g Panna',    price:2500, top:false, desc:''},
+      ]},
+      { name:'ENERGÉTICAS', items:[
+        {name:'Monster',   price:2500, top:true,  desc:''},
+        {name:'Red Bull',  price:2200, top:false, desc:''},
+        {name:'Ghost',     price:3000, top:false, desc:''},
+      ]},
+      { name:'JUGOS Y OTROS', items:[
+        {name:'Powerade 1.1 L',              price:2500, top:false, desc:''},
+        {name:'Powerade 600 ml',             price:1500, top:false, desc:''},
+        {name:'Agua de Proteína',            price:3000, top:false, desc:''},
+        {name:'Coca Cola Sin Azúcar',        price:1500, top:false, desc:''},
+        {name:'Coca Cola Light',             price:1500, top:false, desc:''},
+        {name:'Sprite Ice Sin Azúcar',       price:1500, top:false, desc:''},
+        {name:'Sprite Sin Azúcar',           price:1500, top:false, desc:''},
+        {name:'Sanpellegrino Zero Limonada', price:1800, top:false, desc:''},
+        {name:'Sanpellegrino Zero Peachy',   price:1800, top:false, desc:''},
+        {name:'Electrolitos Amazing Care',   price:1000, top:false, desc:''},
+      ]},
+    ]
+  },
+  {
+    id:'cafeteria', name:'Cafetería', emoji:'☕',
+    subcategories:[
+      { name:'CALIENTES', items:[
+        {name:'Café Americano',  price:3000, top:true,  desc:''},
+        {name:'Espresso Simple', price:2400, top:false, desc:''},
+        {name:'Espresso Doble',  price:3300, top:false, desc:''},
+        {name:'Latte',           price:3300, top:true,  desc:''},
+        {name:'Capuchino',       price:3300, top:true,  desc:''},
+        {name:'Té',              price:2500, top:false, desc:''},
+      ]},
+      { name:'FRÍOS', items:[
+        {name:'Café Frío', price:3000, top:false, desc:''},
+        {name:'Cortado',   price:3300, top:false, desc:''},
+      ]},
+    ]
+  },
+  {
+    id:'batidos', name:'Batidos', emoji:'🥤',
+    subcategories:[
+      { name:'BATIDOS DE PROTEÍNA', items:[
+        {name:'Batido de Proteína Natural',             price:3000, top:true,  desc:'Varios sabores'},
+        {name:'Batido de Proteína en Leche sin Lactosa',price:4000, top:false, desc:'Frutas de temporada'},
+        {name:'Batido de Proteína en Leche Vegetal',    price:4500, top:false, desc:''},
+      ]},
+      { name:'PORCIONES Y SCOOPS', items:[
+        {name:'Porción Frutilla',       price:1500, top:false, desc:''},
+        {name:'Porción Arándano',       price:1500, top:false, desc:''},
+        {name:'Porción Plátano',        price:1000, top:false, desc:''},
+        {name:'Scoop Creatina',         price:1000, top:false, desc:''},
+        {name:'Scoop BCA',              price:2000, top:false, desc:''},
+        {name:'Scoop Café',             price:1000, top:false, desc:''},
+        {name:'Scoop Colágeno',         price:1000, top:false, desc:''},
+        {name:'Porción Mantequilla Maní',price:1500, top:false, desc:''},
+        {name:'Scoop Waxy Maxize',      price:2000, top:false, desc:''},
+      ]},
+    ]
+  },
+  {
+    id:'snacks', name:'Snacks', emoji:'🍫',
+    subcategories:[
+      { name:'DULCES', items:[
+        {name:'Alfajor Blanco',    price:3600, top:true,  desc:''},
+        {name:'Alfajor Negro',     price:3300, top:false, desc:''},
+        {name:"Twenty's",          price:3000, top:false, desc:''},
+        {name:'Bite Caramel White',price:3000, top:false, desc:''},
+        {name:'My Cookies Delear', price:4000, top:false, desc:''},
+        {name:'Edamame',           price:2000, top:false, desc:''},
+        {name:'Qnt Crunchy',       price:3000, top:false, desc:''},
+        {name:'Qnt Wafer',         price:2000, top:false, desc:''},
+        {name:'Chicles Big Time',  price:1800, top:false, desc:''},
+      ]},
+      { name:'SALADOS / FIT', items:[
+        {name:'Charqui',           price:3500, top:true,  desc:'Carne seca, alto en proteína'},
+        {name:'Snack de Lentejas', price:3500, top:false, desc:'Crocante y saludable'},
+        {name:'Snicker Fit',       price:3600, top:false, desc:''},
+      ]},
+    ]
+  },
+  {
+    id:'proteinas', name:'Proteínas', emoji:'💪',
+    subcategories:[
+      { name:'PROTEÍNAS', items:[
+        {name:'Helado de Proteína',        price:6000, top:true,  desc:'Varios sabores'},
+        {name:'Granola Proteica con Fruta',price:7000, top:false, desc:''},
+        {name:'Yogurt Oikos con Cereal',   price:1500, top:false, desc:''},
+        {name:'Yogurt Protein con Cereal', price:1500, top:false, desc:''},
+        {name:'Acaí con Fruta',            price:5000, top:false, desc:''},
+      ]},
+    ]
+  },
+  {
+    id:'platos', name:'Platos', emoji:'🍽️',
+    subcategories:[
+      { name:'PLATOS PREPARADOS', items:[
+        {name:'Tostada Palta + Pollo + Huevo', price:10000, top:true,  desc:''},
+        {name:'Tostada Palta + Huevo',        price:7000,  top:false, desc:''},
+        {name:'Tostada Palta Pollo',          price:9000,  top:false, desc:''},
+        {name:'Sándwich Aliado',              price:5500,  top:false, desc:''},
+        {name:'Sándwich Aliado Pollo',        price:7000,  top:false, desc:''},
+        {name:'Wafles Pollo',                 price:10000, top:false, desc:''},
+        {name:'Burrito Pollo Teriyaki',       price:8000,  top:false, desc:''},
+        {name:'Burrito Vacuno',               price:8000,  top:false, desc:''},
+      ]},
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let menu    = JSON.parse(JSON.stringify(DEFAULT_MENU));
+let isAdmin = false;
+let tapCount = 0, tapTimer = null;
+let editTarget = null; // {ci, si, ii}
+let addTarget  = null; // {ci, si}
+
+// ═══════════════════════════════════════════════
+//  FIREBASE (REST API)
+// ═══════════════════════════════════════════════
+async function loadFirebase() {
+  try {
+    const r = await fetch(`${DB}/menu.json`);
+    const d = await r.json();
+    if (d && Array.isArray(d)) { menu = d; setStatus(true, 'En línea · Menú actualizado'); }
+    else setStatus(true, 'En línea · Sin datos remotos aún');
+  } catch { setStatus(false, 'Sin conexión · Usando menúlocal'); }
+  renderAll(); hideLoading();
 }
 
-// Modal
-function abrirModal() { document.getElementById('modalBg').classList.add('on'); setTimeout(()=>document.getElementById('pwInput').focus(),80); }
-function cerrarModal() { document.getElementById('modalBg').classList.remove('on'); document.getElementById('pwInput').value=''; document.getElementById('modalErr').textContent=''; }
-function login() {
-  if (document.getElementById('pwInput').value === PW) { cerrarModal(); activarAdmin(); }
-  else { document.getElementById('modalErr').textContent='Clave incorrecta'; document.getElementById('pwInput').value=''; document.getElementById('pwInput').focus(); }
-}
-
-// Admin
-function activarAdmin() {
-  document.getElementById('adminBar').classList.add('on');
-  document.getElementById('adminToggle').style.display='none';
-  document.getElementById('menuMain').classList.add('admin-mode');
-  document.body.classList.add('admin-on');
-  document.querySelectorAll('.editable, .editable-price').forEach(el => el.contentEditable='true');
-}
-function salirAdmin() {
-  document.getElementById('adminBar').classList.remove('on');
-  document.getElementById('adminToggle').style.display='flex';
-  document.getElementById('menuMain').classList.remove('admin-mode');
-  document.body.classList.remove('admin-on');
-  document.querySelectorAll('.editable, .editable-price').forEach(el => el.contentEditable='false');
-}
-
-function guardar() {
-  localStorage.setItem('qm_v2', document.getElementById('menuMain').innerHTML);
-  const m = document.getElementById('saveOk');
-  m.classList.add('on');
-  setTimeout(()=>m.classList.remove('on'), 2500);
-}
-
-// Cargar datos guardados
-window.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('qm_v2');
-  if (saved) {
-    document.getElementById('menuMain').innerHTML = saved;
-    document.querySelectorAll('.categoria').forEach(s=>s.classList.add('visible'));
+async function saveToFirebase() {
+  const btn = document.getElementById('abSave');
+  btn.textContent = '⏳ Guardando...';
+  try {
+    const r = await fetch(`${DB}/menu.json`, {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(menu)
+    });
+    if (!r.ok) throw new Error(r.status);
+    // Save timestamp
+    await fetch(`${DB}/lastUpdated.json`, {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(new Date().toISOString())
+    });
+    btn.textContent = '✅ Guardado';
+    setStatus(true, 'En línea · Cambios guardados — todos ven el menú actualizado');
+    setTimeout(()=>{ btn.textContent='💾 Guardar'; },2500);
+  } catch {
+    btn.textContent = '❌ Error';
+    alert('No se pudo guardar. Verifica las reglas de Firebase:\n{\n  ".read": true,\n  ".write": true\n}');
+    setTimeout(()=>{ btn.textContent='💾 Guardar'; },2500);
   }
+}
+
+// Poll every 45s so all viewers see changes
+function startPoll() {
+  setInterval(async ()=>{
+    if (isAdmin) return;
+    try {
+      const r = await fetch(`${DB}/menu.json`);
+      const d = await r.json();
+      if (d && Array.isArray(d)) { menu=d; renderAll(); }
+    } catch {}
+  }, 45000);
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════
+const fmt = n => '$' + Number(n).toLocaleString('es-CL');
+
+function renderAll() { renderNav(); renderMenu(); }
+
+function renderNav() {
+  document.getElementById('nav').innerHTML = menu.map((c,i)=>`
+    <button class="nbtn${i===0?' on':''}" onclick="goSection('${c.id}',this)">
+      <span class="ni">${c.emoji}</span>${c.name}
+    </button>`).join('');
+}
+
+function renderMenu() {
+  document.getElementById('main').innerHTML = menu.map((cat,ci)=>`
+    <div class="section" id="s-${cat.id}">
+      <div class="sec-hdr">
+        <span class="sec-emoji">${cat.emoji}</span>
+        <h2 class="sec-title">${cat.name}</h2>
+      </div>
+      ${cat.subcategories.map((sub,si)=>`
+        <div class="sublabel">${sub.name}</div>
+        ${sub.items.map((item,ii)=>`
+          <div class="item">
+            <div class="iL">
+              <div class="inr">
+                <span class="iname" onclick="openEdit(${ci},${si},${ii})">${item.name}</span>
+                ${item.top?`<span class="tbadge" onclick="openEdit(${ci},${si},${ii})">★ TOP</span>`:''}
+              </div>
+              ${item.desc?`<div class="idesc">${item.desc}</div>`:''}
+            </div>
+            <span class="iprice" onclick="openEdit(${ci},${si},${ii})">${fmt(item.price)}</span>
+          </div>`).join('')}
+        <button class="add-item-btn" onclick="openAdd(${ci},${si})">＋ Agregar producto a ${sub.name}</button>
+      `).join('')}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  NAV / SCROLL
+// ═══════════════════════════════════════════════
+function goSection(id, btn) {
+  const el = document.getElementById('s-'+id);
+  if (!el) return;
+  const navH = document.querySelector('.nav-wrap').offsetHeight + (isAdmin?44:0);
+  window.scrollTo({ top: el.getBoundingClientRect().top + scrollY - navH - 6, behavior:'smooth' });
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+window.addEventListener('scroll',()=>{
+  const off = document.querySelector('.nav-wrap').offsetHeight + (isAdmin?44:0) + 20;
+  let active = null;
+  menu.forEach(c=>{ const e=document.getElementById('s-'+c.id); if(e&&e.getBoundingClientRect().top<off) active=c.id; });
+  if (!active) return;
+  document.querySelectorAll('.nbtn').forEach(b=>{
+    const cat=menu.find(c=>c.id===active);
+    b.classList.toggle('on', cat && b.textContent.includes(cat.name));
+  });
+},{passive:true});
+
+function scrollTop() { window.scrollTo({top:0,behavior:'smooth'}); }
+
+// ═══════════════════════════════════════════════
+//  ADMIN
+// ═══════════════════════════════════════════════
+function adminTap() {
+  tapCount++;
+  clearTimeout(tapTimer);
+  if (tapCount>=3) {
+    tapCount=0;
+    openModal('mPwd');
+    setTimeout(()=>{ document.getElementById('pwdIn').focus(); },150);
+  } else {
+    tapTimer=setTimeout(()=>{ tapCount=0; },700);
+  }
+}
+
+function checkPwd() {
+  const v = document.getElementById('pwdIn').value;
+  document.getElementById('pwdIn').value='';
+  if (v===PWD) { closeModal('mPwd'); enterAdmin(); }
+  else { document.getElementById('pwdErr').style.display='block'; setTimeout(()=>{ document.getElementById('pwdErr').style.display='none'; },2000); }
+}
+
+function enterAdmin() { isAdmin=true; document.body.classList.add('admin'); }
+function exitAdmin()  { isAdmin=false; document.body.classList.remove('admin'); renderAll(); }
+
+// ── EDIT ITEM ──
+function openEdit(ci,si,ii) {
+  if (!isAdmin) return;
+  editTarget={ci,si,ii};
+  const it=menu[ci].subcategories[si].items[ii];
+  document.getElementById('editTitle').textContent = `✏️ ${it.name}`;
+  document.getElementById('editName').value  = it.name;
+  document.getElementById('editPrice').value = it.price;
+  document.getElementById('editDesc').value  = it.desc||'';
+  document.getElementById('editTop').checked = !!it.top;
+  openModal('mEdit');
+}
+
+function confirmEdit() {
+  if (!editTarget) return;
+  const {ci,si,ii}=editTarget;
+  const name  = document.getElementById('editName').value.trim();
+  const price = parseInt(document.getElementById('editPrice').value);
+  if (!name)      { alert('Ingresa un nombre'); return; }
+  if (isNaN(price)||price<0) { alert('Precio inválido'); return; }
+  menu[ci].subcategories[si].items[ii] = {
+    name,
+    price,
+    desc:  document.getElementById('editDesc').value.trim(),
+    top:   document.getElementById('editTop').checked,
+  };
+  closeModal('mEdit');
+  renderMenu();
+}
+
+function deleteItem() {
+  if (!editTarget) return;
+  const {ci,si,ii}=editTarget;
+  const name=menu[ci].subcategories[si].items[ii].name;
+  if (!confirm(`¿Eliminar "${name}"?`)) return;
+  menu[ci].subcategories[si].items.splice(ii,1);
+  closeModal('mEdit');
+  renderMenu();
+}
+
+// ── ADD ITEM ──
+function openAdd(ci,si) {
+  addTarget={ci,si};
+  document.getElementById('addTitle').textContent = `➕ Agregar a ${menu[ci].subcategories[si].name}`;
+  document.getElementById('addName').value='';
+  document.getElementById('addPrice').value='';
+  document.getElementById('addDesc').value='';
+  document.getElementById('addTop').checked=false;
+  openModal('mAdd');
+}
+
+function confirmAdd() {
+  if (!addTarget) return;
+  const name  = document.getElementById('addName').value.trim();
+  const price = parseInt(document.getElementById('addPrice').value);
+  if (!name)      { alert('Ingresa un nombre'); return; }
+  if (isNaN(price)||price<0) { alert('Precio inválido'); return; }
+  menu[addTarget.ci].subcategories[addTarget.si].items.push({
+    name,
+    price,
+    desc: document.getElementById('addDesc').value.trim(),
+    top:  document.getElementById('addTop').checked,
+  });
+  closeModal('mAdd');
+  renderMenu();
+}
+
+// ═══════════════════════════════════════════════
+//  MODALS
+// ═══════════════════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.mbd').forEach(bd=>{
+  bd.addEventListener('click',e=>{ if(e.target===bd) bd.classList.remove('open'); });
 });
 
-// Toggle TOP badge
-function toggleTop(btn) {
-  const item = btn.closest('.item');
-  const nameDiv = item.querySelector('.item-name');
-  const badge = nameDiv.querySelector('.badge-top');
-  const isOn = btn.classList.toggle('on');
-  if (badge) badge.style.display = isOn ? 'inline' : 'none';
+// ═══════════════════════════════════════════════
+//  STATUS / LOADING
+// ═══════════════════════════════════════════════
+function setStatus(live,txt) {
+  document.getElementById('sdot').className='sdot'+(live?' live':'');
+  document.getElementById('statusTxt').textContent=txt;
+}
+function hideLoading() {
+  const el=document.getElementById('loading');
+  el.classList.add('gone');
+  setTimeout(()=>el.remove(),500);
 }
 
-// Eliminar item
-function delItem(btn) {
-  if (confirm('¿Eliminar este producto?')) btn.closest('.item').remove();
-}
-
-// Agregar item
-function addItem(secId) {
-  const sec = document.getElementById(secId);
-  const btnAdd = sec.querySelector('.btn-add-item');
-  const d = document.createElement('div');
-  d.className = 'item';
-  d.innerHTML = `
-    <div class="item-info"><div class="item-name"><span class="editable" contenteditable="true">Nuevo producto</span></div></div>
-    <div class="item-price"><span class="editable-price" contenteditable="true">$0</span></div>
-    <div class="item-actions">
-      <button class="btn-icon top" onclick="toggleTop(this)">★</button>
-      <button class="btn-icon del" onclick="delItem(this)">✕</button>
-    </div>`;
-  sec.insertBefore(d, btnAdd);
-  setTimeout(()=>d.querySelector('.editable').focus(), 50);
-}
-
-// Back to top
-window.addEventListener('scroll', ()=>{ document.getElementById('backTop').classList.toggle('on', scrollY>200); });
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+(async()=>{
+  renderAll();        // show default menu immediately
+  await loadFirebase();
+  startPoll();
+})();
 </script>
 </body>
 </html>
