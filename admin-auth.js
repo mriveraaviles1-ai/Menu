@@ -1,5 +1,5 @@
-/* Enable only after the matching Firebase rules and Google provider are applied. */
-window.ADMIN_GOOGLE_ENABLED = false;
+/* Google provider and matching database rules are deployed. */
+window.ADMIN_GOOGLE_ENABLED = true;
 window.FirebaseAdmin = {
   load() {
     if (!this.loading) this.loading = this.initialize().catch(error => { this.loading = null; throw error; });
@@ -30,6 +30,24 @@ window.FirebaseAdmin = {
       await auth.signOut();
       throw new Error('La cuenta de Google debe tener el correo verificado.');
     }
+    await this.verifyAdmin(result.user);
+  },
+  async verifyAdmin(user) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch('https://quioscodemarcos-default-rtdb.firebaseio.com/menu_admin.json?auth=' + encodeURIComponent(token), {cache:'no-store', signal:controller.signal});
+      if (!response.ok || await response.json() !== true) {
+        const denied = new Error('Esta cuenta no tiene permiso para editar el menú.');
+        denied.code = 'menu/not-authorized';
+        throw denied;
+      }
+    } catch (error) {
+      await this.signOut();
+      if (error.code === 'menu/not-authorized') throw error;
+      throw new Error('No se pudo confirmar el acceso. Revisa la conexión e intenta nuevamente.');
+    } finally { clearTimeout(timeout); }
   },
   async token() {
     const auth = await this.load();

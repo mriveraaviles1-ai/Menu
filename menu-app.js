@@ -114,7 +114,17 @@ async function guardar() {
 async function abrirModal() {
   if (window.ADMIN_GOOGLE_ENABLED) {
     try { await FirebaseAdmin.signIn(); activarAdmin(); }
-    catch (error) { alert(error.message || 'No se pudo ingresar con Google.'); }
+    catch (error) {
+      const messages = {
+        'auth/popup-closed-by-user':'Se cerró la ventana de Google. Puedes volver a intentarlo.',
+        'auth/cancelled-popup-request':'Ya hay una ventana de ingreso abierta. Complétala para continuar.',
+        'auth/popup-blocked':'Permite la ventana de ingreso de Google y vuelve a intentarlo.',
+        'auth/unauthorized-domain':'El acceso con Google aún no está habilitado para esta dirección.',
+        'auth/operation-not-allowed':'El ingreso con Google aún no está disponible.',
+        'auth/network-request-failed':'No se pudo conectar con Google. Revisa tu conexión.'
+      };
+      alert(messages[error.code] || (error.code?.startsWith('auth/') ? 'No se pudo ingresar con Google. Intenta nuevamente.' : error.message) || 'No se pudo ingresar con Google.');
+    }
     return;
   }
   $('modalBg').classList.add('on'); $('pwInput').focus();
